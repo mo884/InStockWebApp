@@ -1,0 +1,41 @@
+﻿
+@using InStockWebAppPL.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@{
+
+var Culture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+
+}
+
+<div class="dropdown">
+    <!-- Button with language icon -->
+    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fas fa-globe"></i> <!-- Globe icon from Font Awesome -->
+    </button>
+    <ul class="dropdown-menu">
+            <li>
+                    <a class="dropdown-item d-flex justify-content-between"
+                       href="@Url.Action("SetLanguage", "Culture", new {
+                                                              culture = "en-US",
+                                                              returnUrl = Context.Request.Path + Context.Request.QueryString
+                                                          })">
+                        @SharedLocalizer["English"]
+                    </a>
+                </li>
+            
+                <li>
+                    <a class="dropdown-item d-flex justify-content-between"
+               href="@Url.Action("SetLanguage", "Culture", new {
+                                                              culture = "ar",
+                                                              returnUrl = Context.Request.Path + Context.Request.QueryString
+                                                          })">
+                        @SharedLocalizer["Arabic"]
+                    </a>
+                </li>
+         
+        </ul>
+<style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" >
+</style>
+</div>

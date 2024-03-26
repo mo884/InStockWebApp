@@ -1,0 +1,128 @@
+﻿@model OrderAddress
+@{
+    ViewData["Title"] = "ConfirmPayment";
+    Layout = "~/Views/Shared/Customer/_Layout.cshtml";
+    var cart = (Cart?)TempData["OrderList"];
+}
+<link href="~/lib/leaflet/leaflet.css" rel="stylesheet" />
+<link href="~/lib/leaflet/leaflet.min.css" rel="stylesheet" />
+<div style="margin-bottom:100px;margin-top:100px">
+    <div class="row ">
+        <div class="col-1"></div>
+        <div class="col-6 ">
+
+
+            <table class="table text-nowrap  text-center">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="border-0 p-3" scope="col">
+                            <strong class="text-sm text-uppercase">Product</strong>
+                        </th>
+                        <th class="border-0 p-3" scope="col">
+                            <strong class="text-sm text-uppercase">Price</strong>
+                        </th>
+                        <th class="border-0 p-3" scope="col">
+                            <strong class="text-sm text-uppercase">Quantity</strong>
+                        </th>
+
+
+                    </tr>
+                </thead>
+                <tbody class="border-0">
+                    @foreach (var item in cart.Items)
+                    {
+
+
+                        <tr>
+                            <td class="ps-0 py-3 border-light" scope="row">
+                                <div class="d-flex align-items-center">
+                                    <a class="reset-anchor d-block animsition-link" asp-action="CustomerSideDetails" asp-controller="Product" asp-route-id="@item?.Product?.Id">
+                                        <img src="~/Files/ProductImages/@item?.Product?.Images?.FirstOrDefault()?.ImagePath" alt="..." width="70" />
+                                    </a>
+                                    <div class="ms-3">
+                                        <strong class="h6">
+                                            <a class="reset-anchor animsition-link" asp-action="CustomerSideDetails" asp-controller="Product" asp-route-id="@item?.Product?.Id">@item.Product.Name</a>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3 align-middle border-light">
+                                <p class="mb-0 small">$@item.TotalPrice</p>
+                            </td>
+
+                            <td class="p-3 align-middle border-light">
+                                <p class="mb-0 small totalPrice">@item.Quantity</p>
+                            </td>
+
+                        </tr>
+                        @* @items[i].Product.Images[0].ImagePath *@
+
+                    }
+                </tbody>
+            </table>
+            <div class="bg-light px-4 py-3">
+                <div class="row align-items-center text-center">
+                    <div class="col-md-6 ">
+                        </div>
+                    <div class="col-md-6 text-md-end">
+                        <form id="addressForm" asp-action="Location" asp-controller="Payment" method="post">
+                            <input type="hidden" id="lat" name="Lat" readonly>
+                            <input type="hidden" id="long" name="Long" readonly>
+                          
+                                <button type="submit" value="" class="btn btn-dark p-2 btn-sm">confirms</button>
+                            
+                        </form>
+                    </div>
+                    </div>
+            </div>
+
+        </div>
+        <div class="col-4">
+            <div id="map" style="height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/leaflet/leaflet.js"></script>
+<script src="~/lib/leaflet/leaflet.min.js"></script>
+
+<!-- JavaScript code -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([30.5045, 12345511.0226], 6); // Centered on the address
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Marker to indicate the selected location
+    var marker = L.marker([30.5045, 12345511.0226], { draggable: true }).addTo(map);
+
+    // Update input fields with coordinates when marker is dragged
+    marker.on('dragend', function (event) {
+        var marker = event.target;
+        var position = marker.getLatLng();
+        document.getElementById('lat').value = position.lat.toFixed(4);
+        document.getElementById('long').value = position.lng.toFixed(4);
+    });
+
+    // Update input fields with coordinates when map is clicked
+    map.on('click', function (event) {
+        var lat = event.latlng.lat.toFixed(4);
+        var lng = event.latlng.lng.toFixed(4);
+        document.getElementById('lat').value = lat;
+        document.getElementById('long').value = lng;
+
+        // Move the marker to the clicked location
+        marker.setLatLng(event.latlng);
+
+        openAppWithLocation(lat, lng);
+    });
+
+    // Function to open your app with the specified location
+    function openAppWithLocation(lat, lng) {
+        // Replace this URL with the URL scheme for opening your app with the location
+        var url = 'yourapp://?lat=' + lat + '&lng=' + lng;
+        window.location.href = url;
+    }
+</script>

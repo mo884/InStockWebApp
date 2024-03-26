@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/Customer/_Layout.cshtml";
+}
+
+
+<div class="main-content">
+    <!-- Top navbar -->
+    <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
+        <div class="container-fluid">
+            <!-- Brand -->
+            <p class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block">User profile</p>
+        </div>
+    </nav>
+    <!-- Header -->
+    <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center" style="padding-left: 150px">
+        <!-- Mask -->
+        <span class="mask bg-gradient-default opacity-8"></span>
+        <!-- Header container -->
+        <div class="container-fluid d-flex align-items-center">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="display-2 text-white">Change password</h1>
+                    <p class="text-white mt-0 mb-5">We sent a confirmation code to your e-mail.<br/>Please, check your inbox.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page content -->
+    <div class="container-fluid mt--7">
+        <div class="row">
+            <div class="d-flex justify-content-center">
+                <div class="card bg-secondary shadow w-75">
+                    <div class="card-header bg-white border-0">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <h3 class="mb-0">Confirmation code</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="ChangePassword" asp-controller="ChangePassword">
+                            <div class="pl-lg-4">
+                                <div class="row">
+                                    <div class="form-group focused d-flex">
+                                        <input type="text" class="form-control form-control-alternative w-85" name="code" placeholder="Enter your confirmation code...">
+                                        <button class="btn btn-info w-75">
+                                            <i class="icon-nav far fa-envelope me-1"></i> Send
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section CSS
+{
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="~/Customer/css/profile.css">
+}
+
+@section Js
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+}

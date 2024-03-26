@@ -1,0 +1,77 @@
+﻿@using InStockWebAppDAL.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject IHttpContextAccessor HttpContextAccessor
+@using InStockWebAppPL.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@{
+    var Culture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+}
+<style>
+    active{
+     color: #dcb14a;
+    }
+</style>
+<header class="header bg-white">
+    <div class="container px-lg-3">
+        <nav class="navbar navbar-expand-lg navbar-light py-3 px-lg-0">
+            <a class="navbar-brand">
+                <span class="fw-bold text-uppercase text-dark">IN-STOCK</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
+                    <li class="nav-item">
+                        <a active-when="Home" asp-controller="Home" asp-action="Index" class="nav-link">@SharedLocalizer["Home"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a active-when="FilterProduct" class="nav-link" asp-action="Index" asp-controller="FilterProduct">@SharedLocalizer["Shop"]</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a active-when="Contact" asp-action="Admin" asp-controller="Contact" class="nav-link">@SharedLocalizer["Contact"]</a>
+                    </li>
+                    @{
+                        var count = HttpContextAccessor.HttpContext.Session.GetInt32("shoppingCartSession");
+                    }
+
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("shoppingCartSession") is not null && count > 0)
+                    {
+                        <li class="nav-item">
+                            <a active-when="Cart" asp-controller="Cart" asp-action="Index" class="nav-link "> <i class="icon-nav fas fa-dolly-flatbed me-1"></i>@SharedLocalizer["cart"]<small id="cartCount" class="text-dark fw-normal">(@count)</small></a>
+                        </li>
+                    }
+                    else if (HttpContextAccessor.HttpContext.Session.GetInt32("shoppingCartSession") is null || count == 0)
+                    {
+                        <li class="nav-item">
+                            <a active-when="Cart" asp-controller="Cart" asp-action="Index" class="nav-link"> <i class="icon-nav fas fa-dolly-flatbed me-1"></i>@SharedLocalizer["cart"]<small id="cartCount" class="text-dark fw-normal">(0)</small></a>
+                        </li>
+                    }
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <a active-when="Customer" class="nav-link" href="/Customer/Details"> <i class="icon-nav fas fa-user me-1 fw-normal"></i> @SharedLocalizer["Profile"]</a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <a class="btn btn-dark" href="/Account/Logout">
+                                <i class="icon-nav fas fa-sign-out-alt me-1"></i>@SharedLocalizer["Log Out"]
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-dark" href="/Account/Login">
+                                <i class="icon-nav fas fa-sign-in-alt me-1"></i> @SharedLocalizer["Log In"]
+                            </a>
+                        }
+                    </li>
+
+                </ul>
+                <partial name="~/Views/Shared/Customer/_SetLanguage.cshtml"/>
+
+            </div>
+        </nav>
+    </div>
+</header>

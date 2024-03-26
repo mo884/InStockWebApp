@@ -1,0 +1,630 @@
+﻿@model InStockWebAppBLL.Models.ProductVM.GetProductsVM
+@using InStockWebAppPL.Resources
+@inject IStringLocalizer<SharedResources> ViewLocalizer
+@using Microsoft.AspNetCore.Identity;
+@using InStockWebAppDAL.Entities
+@using Microsoft.Extensions.Localization
+@inject SignInManager<User> signInManager
+@inject IOrderRepository orderRepo;
+@inject UserManager<User> userManager;
+@{
+    ViewData["Title"] = "CustomerSideDetails";
+    var relatedProducts = ViewBag.RelatedProducts as List<Product>;
+
+    dynamic user = null;
+    @if (signInManager.IsSignedIn(User))
+    {
+        user =await userManager.FindByNameAsync(User.Identity.Name);
+    }
+
+    bool IsComment = false;
+    bool UserHasProduct = false;
+
+    // Calculate the number of stars based on AvgRating rounded up
+    int numberOfStars = (int)Math.Ceiling(Model?.AvgRating ?? 0);
+    int i = 0;
+}
+    
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"] | InStock</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    @section CSS {
+        <partial name="~/Views/Partials/Shared/_CSS.cshtml" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    }
+   
+</head>
+<body>
+    <div class="page-holder bg-light">
+        <section class="py-5">
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-lg-6">
+
+                     <!-- PRODUCT SLIDER-->
+                    <div class="row m-sm-0">
+                        <div class="col-sm-2 p-sm-0 order-2 order-sm-1 mt-2 mt-sm-0 px-xl-2">
+                            <div class="swiper product-slider-thumbs">
+                                <div class="swiper-wrapper">
+                                    @{
+                                       i = 0;
+                                    }
+                                    @foreach (var imagePath in Model?.ImagePaths)
+                                    {
+                                        @if (i == 5) { break; }
+                                        i++;
+                                        <div class="swiper-slide h-auto swiper-thumb-item mb-3">
+                                            <img class="w-100" src="~/Files/ProductImages/@imagePath" alt="...">
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-10 order-1 order-sm-2">
+                            <div class="swiper product-slider">
+                                <div class="swiper-wrapper">
+                                    @{
+                                        i = 0;
+                                    }
+                                    @foreach (var imagePath in Model?.ImagePaths)
+                                    {
+                                        @if (i == 5) { break; }
+                                            i++;
+                                        <div class="swiper-slide h-auto">
+                                            <a class="glightbox product-view" href="~/Files/ProductImages/@imagePath" data-gallery="gallery2" data-glightbox="Product item @(i + 1)">
+                                                    <div style="width:100% ;">
+                                                    <img style="width:100%"height="100%"  src="~/Files/ProductImages/@imagePath" alt="...">
+                                               </div> 
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <!-- PRODUCT DETAILS-->
+                    <div class="col-lg-6">
+                        <!--Stars Shapes-->
+                        <ul class="list-inline mb-2 text-sm">
+                            @for (i = 0; i < numberOfStars; i++)
+                            {
+                                <li class="list-inline-item m-0"><i class="fas fa-star small text-warning"></i></li>
+                            }
+                            @for (i = numberOfStars; i < 5; i++)
+                            {
+                                <li class="list-inline-item m-0"><i class="far fa-star small text-warning"></i></li>
+                            }
+                            <li class="list-inline-item m-0">@Model?.AvgRating</li>
+                        </ul>
+                        <h1>@Model.Name</h1>
+                        <p class="text-muted lead">$@Model.Price</p>
+                        <p class="text-sm mb-4">@Model.Description</p>
+                        <form id="addToCartForm" method="post">
+                            <div class="quan-bar w-100">
+                               
+                                <div class="col-sm-5 pr-sm-0">
+                                    <div class="border d-flex align-items-center justify-content-between py-1 px-3 bg-white border-white">
+                                        <span class="small text-uppercase text-gray mr-4 no-select">@ViewLocalizer["Quantity"]</span>
+                                        <div class="quantity">
+                                            <input type="hidden" name="productId" value="@Model.Id" />
+                                            <button type="button" class="dec-btn p-0"><i class="fas fa-caret-left"></i></button>
+                                            <input id="quantityInput" class="form-control border-0 shadow-0 p-0" type="text" value="1">
+                                            <button type="button" class="inc-btn p-0"><i class="fas fa-caret-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 pl-sm-0">
+                                    <button type="button" id="addToCartBtn" data-item-id="@Model.Id" class="h-100 d-inline-block align-items-center justify-content-center text-uppercase atc-btn">@ViewLocalizer["Add"] @ViewLocalizer["to"] @ViewLocalizer["cart"]</button>
+
+                                
+                                </div>
+                            </div>
+                        </form>
+                        <br>
+                        <ul class="list-unstyled small d-inline-block">
+                            <li class="px-3 py-2 mb-1 bg-white"><strong class="text-uppercase">
+                                @ViewLocalizer["InStock"]:
+                                </strong><span class="ms-2 text-muted">@Model.InStock</span></li>
+                            <li class="px-3 py-2 mb-1 bg-white text-muted"><strong class="text-uppercase text-dark">@ViewLocalizer["SubCategory"]:</strong><a class="reset-anchor ms-2" href="#!">@Model.SubCategoryName</a></li>
+                            @if (Model.DiscountName != null&&Model.DiscountName != "")
+                            {
+                                <li class="px-3 py-2 mb-1 bg-white text-muted"><strong class="text-uppercase text-dark">@ViewLocalizer["Discounts"]:</strong><a class="reset-anchor ms-2" href="#!">@Model.DiscountName</a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <!-- DETAILS TABS-->
+                <ul class="nav nav-tabs border-0" id="myTab" role="tablist">
+                    @if (signInManager.IsSignedIn(User))
+                            {
+                        <li class="nav-item"><a class="nav-link text-uppercase active" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">@ViewLocalizer["Description"]</a></li>
+
+                        <li class="nav-item"><a class="nav-link text-uppercase" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">@ViewLocalizer["Reviews"]</a></li>
+                    }else
+                    {
+                        <li class="nav-item"><a class="nav-link text-uppercase" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">@ViewLocalizer["Reviews"]</a></li>
+
+                    }
+                     
+                </ul>
+                <div class="tab-content mb-5 section section-@ViewBag.ID" id="myTabContent">
+                    <!--Description Tab-->
+                    <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                        <div class="p-4 p-lg-5 bg-white">
+                            
+                            @if (!signInManager.IsSignedIn(User))
+                            {
+                                @foreach (var item in Model.ProductReviews.Take(3))
+                                {
+
+                                    <div class="d-flex mt-3 mb-3">
+                                        <div class="flex-shrink-0"><img class="rounded-circle" src="~/Files/ImageProfile/@item.User.Photo" alt="" width="50"></div>
+                                        <div class="ms-3 flex-shrink-1">
+                                            <h6 class="mb-0 text-uppercase">@item.User.FirstName @item.User.LastName</h6>
+                                            <p class="small text-muted mb-0 text-uppercase">@item.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                                            <ul class="list-inline mb-1 text-xs">
+                                                @for (int j = 0; j < 5; j++)
+                                                {
+                                                    if (j <item.Rating)
+                                                    {
+                                                        <li class="list-inline-item m-0"><i class="fas fa-star text-warning"></i></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li class="list-inline-item m-0"><i class="far fa-star text-muted"></i></li>
+                                                    }
+                                                }
+
+                                            </ul>
+                                            <p class="text-sm mb-0 text-muted">@item.Review</p>
+                                        </div>
+                                    </div>
+
+                                }
+                            }else{
+                                <h6 class="text-uppercase">@ViewLocalizer["Product"] @ViewLocalizer["Description"] </h6>
+                            <p class="text-muted text-sm mb-0">@Model.Description</p>
+                            }
+                        </div>
+                       
+                    </div>
+                    <!--Reviews Tab-->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                       <div class="p-4 p-lg-5 bg-white">
+                    
+                   <div id="rev">
+                       @foreach (var item in Model.ProductReviews)
+                       {
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <img class="rounded-circle" src="~/Files/ImageProfile/@item.User.Photo" alt="" width="50"></div>
+                                <div class="ms-3 flex-shrink-1">
+                                            <h6 class="mb-0 text-uppercase">@item.User.FirstName @item.User.LastName</h6>
+                                            <p class="small text-muted mb-0 text-uppercase">@item.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                                    <ul class="list-inline mb-1 text-xs">
+                                                @for (int j = 0;j < 5; j++)
+                                                {
+                                                    if (j <item.Rating)
+                                                    {
+                                                        <li class="list-inline-item m-0"><i class="fas fa-star text-warning"></i></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li class="list-inline-item m-0"><i class="far fa-star text-muted"></i></li>
+                                                    }
+                                                }
+                                                
+                                            </ul>
+                                    <p class="text-sm mb-0 text-muted">@item.Review</p>
+                                </div>
+                            </div>
+                                    @if (signInManager.IsSignedIn(User))
+                                    {
+                                       
+                                        
+                                                   
+                                        @if (item.UserId == user.Id)
+                                        {
+                                            IsComment = true;
+                                        }
+                                    }
+                       }
+                               
+                    </div>
+                     @if (signInManager.IsSignedIn(User))
+                      {
+                                var orders = await orderRepo?.GetAllOrders(user.Id);
+                                if (orders != null)
+                                {
+                                    foreach (var order in orders)
+                                    {
+                                        @foreach (var items in order?.Items)
+                                        {
+                                            if (items?.Product?.Id ==Model.Id)
+                                            {
+                                                UserHasProduct=true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                           @if (!IsComment&&UserHasProduct)
+                            {
+                                <form id="reviewComment">
+
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div class="rating">
+                                                <input type="radio" name="rating" value="5" id="5">
+                                                <label for="5">☆</label>
+                                                <input type="radio" name="rating" value="4" id="4">
+                                                <label for="4">☆</label>
+                                                <input type="radio" name="rating" value="3" id="3">
+                                                <label for="3">☆</label>
+                                                <input type="radio" name="rating" value="2" id="2">
+                                                <label for="2">☆</label>
+                                                <input type="radio" name="rating" value="1" id="1">
+                                                <label for="1">☆</label>
+                                            </div>
+                                            <input class="form-control m-1" id="comment" type="text">
+
+                                            <input type="hidden" id="imag" value="@user.Photo" />
+                                            <input type="hidden" id="name" value="@user.FirstName @user.LastName" />
+                                            <input type="hidden" id="productId" value="@Model.Id" />
+                                            <input type="hidden" id="userId" value="@user.Id" />
+
+                                        </div>
+                                        <div class="col-4 ">
+                                            <button class="btn btn-dark mt-5" type="submit">Submit</button>
+
+                                        </div>
+
+                                    </div>
+
+
+
+
+                                </form>
+                            }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <!-- RELATED PRODUCTS-->
+                @if (relatedProducts?.Count() > 0)
+                {
+                    <section class="py-5">
+                        <header>
+                            <h2 class="h5 text-uppercase mb-4">RELATED PRODUCTS</h2>
+                        </header>
+                        <div class="row">
+                            @{
+                                int max = 4;
+                                int counter = 0;
+                            }
+                            @foreach (var product in relatedProducts)
+                            {
+                                string imageName = product?.Images?.FirstOrDefault()?.ImagePath;
+                                string source = string.Empty;
+
+                                if (imageName != null)
+                                {
+                                    source = $"/Files/ProductImages/{imageName}";
+                                }
+                                else
+                                {
+                                    source = $"~/files/categoryimages/no_image.jpg";
+                                }
+
+                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                    <div class="product text-center">
+                                        <div class="position-relative mb-3">
+                                            @{
+                                                decimal? priceAfterDiscount = null;
+                                                if (product.Discount != null && product.Discount.Percentage != null)
+                                                {
+                                                    decimal discountPercentage = (decimal)product.Discount.Percentage;
+                                                    priceAfterDiscount = product.Price - (product.Price * (discountPercentage / 100));
+                                                }
+
+                                                string badgeClass = "badge text-white bg-";
+                                                string badgeText = "";
+                                                if (product.InStock == 0)
+                                                {
+                                                    badgeClass += "danger";
+                                                    badgeText = "SOLD";
+                                                }
+                                                else if (product.Discount != null && product.Discount.IsActive == true)
+                                                {
+                                                    badgeClass += "primary";
+                                                    badgeText = $"{product.Discount.Percentage}% SALE";
+                                                }
+                                                else if ((DateTime.Now - product.CreatedAt).TotalDays <= 14)
+                                                {
+                                                    badgeClass += "info";
+                                                    badgeText = "NEW";
+                                                }
+                                            }
+                                            <div class="@badgeClass">@badgeText</div>
+                                            <a class="d-block" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><div style="width: 305px;height: 330px;"><img src="@source" style="width:100%;height:100%;" alt="..."></div></a>
+                                            <div class="product-overlay">
+                                                <ul class="mb-0 list-inline">
+                                                    <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-outline-dark" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><i class="far fa-eye"></i></a></li>
+                                                    @* <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-dark" asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id">Add to cart</a></li> *@
+                                                    <li class="list-inline-item m-0 p-0">
+                                                        <a class="btn btn-sm btn-dark addToCartBtnProduct" data-item-id="@product.Id">Add to cart</a>
+                                                    </li>
+                                                    <li class="list-inline-item me-0">
+                                                        <a class="btn btn-sm btn-outline-dark  js-render-modal" href="javascript:" data-url="/Product/ProductDetailes/@product.Id">
+                                                            <i class="fas fa-expand"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <h6> <a class="reset-anchor" href="detail.html">@product.Name</a></h6>
+                                        <p class="small text-muted">
+                                            @if (priceAfterDiscount != null && product.InStock != 0 && product.Discount != null && product.Discount.IsActive == true && product.Discount.Percentage != null)
+                                            {
+                                                <span style="text-decoration: line-through;">@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                                <span style="font-weight:700;">&nbsp; &nbsp; @string.Format("{0} EGP", priceAfterDiscount?.ToString("#,##0.00"))</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                counter++;
+
+                                if (counter == max)
+                                {
+                                    break;
+                                }
+                            }
+                        </div>
+                    </section>
+                }
+
+                <input type="hidden" id="productId" value="@Model.Id" />
+        @section JS {
+            <partial name="~/Views/Partials/Product/_ProductScript.cshtml" />
+
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+            <!-- SignalR CDN -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.0/signalr.min.js"></script>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                $(document).ready(function () {
+
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl("/Hubs/ChatHub")
+                        .build();
+
+                    connection.start()
+                        .then(() => console.log("SignalR connection established"))
+                        .catch(err => console.error("Error starting connection:", err));
+
+                    $('#reviewComment').submit(function (event) {
+                        event.preventDefault();
+
+                        const message = $('#comment').val().trim();
+                        const rating = $('input[name="rating"]:checked').val();
+                        const image = $('#imag').val().trim();
+                        const name = $('#name').val();
+                        const productId = $('#productId').val();
+                        const userId = $('#userId').val();
+                        console.log(image)
+                        if (!message || !rating) {
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "Try Again",
+                                customClass: {
+                                    confirmButton: 'swal-button swal-button--danger'
+                                }
+                            });
+                            return;
+                        }
+
+                        connection.invoke("SendReview", message, rating, image, name, productId, userId)
+                            .then(() => console.log("Review sent successfully"))
+                            .catch(err => console.error("Error sending review:", err));
+
+                        $('#reviewComment')[0].reset();
+                        $('input[name="rating"]').prop('checked', false).filter('[value="5"]').prop('checked', false);
+                    });
+
+                    connection.on("Receiveview", function (message, rating, image, name, productId, userId) {
+                        let starIcons = '';
+                        const maxRating = 5;
+                        const fullStars = Math.floor(rating);
+                        const hasHalfStar = rating % 1 !== 0;
+
+                        for (let i = 0; i < fullStars; i++) {
+                            starIcons += '<li class="list-inline-item m-0"><i class="fas fa-star text-warning"></i></li>';
+                        }
+
+                        if (hasHalfStar) {
+                            starIcons += '<li class="list-inline-item m-0"><i class="fas fa-star-half-alt text-warning"></i></li>';
+                        }
+
+                        const emptyStars = maxRating - fullStars - (hasHalfStar ? 1 : 0);
+                        for (let i = 0; i < emptyStars; i++) {
+                            starIcons += '<li class="list-inline-item m-0"><i class="far fa-star text-muted"></i></li>';
+                        }
+                        const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                        if (@Model.Id == productId) {
+
+                            $('#rev').append(`
+                                                                        <div class="row">
+                                                                            <div class="col-lg-8">
+                                                                                <div class="d-flex">
+                                                                                   <div class="flex-shrink-0"><img class="rounded-circle" src="/Files/ImageProfile/${image}" alt="" width="50" /></div>
+                                                                                    <div class="ms-3 flex-shrink-1">
+                                                                                        <h6 class="mb-0 text-uppercase">${name}</h6>
+                                                                                        <p class="small text-muted mb-0 text-uppercase">${currentDate}</p>
+                                                                                        <ul class="list-inline mb-1 text-xs">
+                                                                                            ${starIcons}
+                                                                                        </ul>
+                                                                                        <p class="text-sm mb-0 text-muted">${message}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    `);
+
+
+                            if (userId === '@user?.Id') {
+                                $('#reviewComment').hide();
+                            }
+                        }
+
+                    });
+                    $('#addToCartBtn').click(function (e) {
+                        e.preventDefault(); 
+                        var productId = $('#productId').val();
+                        var quantity = $('#quantityInput').val();
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("AddToCart", "Cart")',
+                            data: { productId: productId, quantity: quantity },
+                            success: function (response) {
+                                if (response.success) {
+                                    console.log('Item added to cart successfully'); 
+                                    console.log(response.cartCount);
+                                            Toastify({
+                                                text: "item is Added",
+                                                className: "info",
+                                                style: {
+                                                    background: "linear-gradient(to right, #dcb15a, #dcb14a)",
+                                                   
+                                                },
+
+                                                preventDuplicates: false
+                                            }).showToast();
+                                    updateCartCount(response.cartCount); 
+                                } else {
+                                    console.error('Error adding item to cart:', response.errorMessage);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('Error adding item to cart:', error);
+                            }
+                        });
+                    });
+
+                    function updateCartCount(count) {
+                        $('#cartCount').text('(' + count + ')'); 
+                    }
+
+
+                    $('.inc-btn').click(function () {
+                        var quantity = parseInt($('#quantityInput').val());
+                        if (quantity < parseInt('@Model.InStock')) {
+                            quantity++;
+                            $('#quantityInput').val(quantity);
+                        } else {
+                            Toastify({
+                                text: "Quantity cannot exceed available stock",
+                                className: "info",
+                                style: {
+                                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                },
+                               
+                                preventDuplicates: false 
+                            }).showToast();
+                        }
+                    });
+
+                    $('.dec-btn').click(function () {
+                        var quantity = parseInt($('#quantityInput').val());
+                        if (quantity > 1) {
+                            quantity--;
+                            $('#quantityInput').val(quantity);
+                        }
+                    });
+                });
+
+              
+            </script>
+                    <script>
+                        $(document).ready(function () {
+                            $('.addToCartBtnProduct').click(function (e) {
+                                e.preventDefault();
+                                var quantity = 1;
+                                var productId = $(this).data('item-id');
+                                console.log(productId);
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Cart/AddToCart/',
+                                    data: { productId: productId, quantity: quantity },
+                                    success: function (response) {
+                                        if (response.success) {
+
+                                            Toastify({
+                                                text: "item is Added",
+                                                className: "info",
+                                                style: {
+                                                    background: "linear-gradient(to right, #dcb13a, #dcb14a)",
+                                                },
+
+                                                preventDuplicates: false
+                                            }).showToast();
+                                            updateCartCount(response.cartCount);
+
+                                        } else {
+                                            Toastify({
+                                                text: "Quantity cannot exceed available stock",
+                                                className: "toastify-danger",
+                                                style: {
+                                                    background: "linear-gradient(to right,red, #eb1919)",
+                                                },
+                                                position: "center",
+                                                preventDuplicates: false,
+                                                duration: 3000
+                                            }).showToast();
+                                        }
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error('Error adding item to cart:', error);
+                                    }
+                                });
+                            });
+
+                            function updateCartCount(count) {
+                                $('#cartCount').text('(' + count + ')');
+                            }
+                            var sectionID = '@ViewBag.ID';
+
+                            // Scroll to the specified section/div
+                            $('html, body').animate({
+                                scrollTop: $('.section-' + sectionID).offset().top
+                            }, 100);
+                        });
+                    </script>
+            
+          <!-- SweetAlert2 CDN -->
+            <script src="~/sweatalert/sweetalert2/sweetalert2.min.js"></script>
+         
+        }
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    </div>
+</body>
+</html>

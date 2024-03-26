@@ -1,0 +1,1033 @@
+﻿@model List<CategoryWithProductsVM>
+
+@{
+    ViewBag.Title = "IN-STOCK Egypt | Best Online Shopping Mall";
+    var discounts = ViewBag.Discounts as List<Discount>;
+    var discountedProducts = ViewBag.DiscountedProducts as List<Product>;
+    var productsByUnitsSold = ViewBag.ProductsByUnitsSold as List<Product>;
+    Layout = "~/Views/Shared/Customer/_Layout.cshtml";
+}
+
+<head>
+    <style>
+        .container {
+          width: 100%;
+        }
+
+        .slider-wrapper {
+          position: relative;
+        }
+
+        .slider-wrapper .slide-button {
+          position: absolute;
+          top: 50%;
+          outline: none;
+          border: none;
+          height: 50px;
+          width: 50px;
+          z-index: 5;
+          color: #fff;
+          display: flex;
+          cursor: pointer;
+          font-size: 2.2rem;
+          background: #000;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transform: translateY(-50%);
+        }
+
+        .slider-wrapper .slide-button:hover {
+          background: #404040;
+        }
+
+        .slider-wrapper .slide-button#prev-slide {
+          left: -25px;
+          display: none;
+        }
+
+        .slider-wrapper .slide-button#next-slide {
+          right: -25px;
+        }
+
+        .slider-wrapper .image-list {
+          display: grid;
+          grid-template-columns: repeat(@Model.Count(), 1fr);
+          gap: 18px;
+          font-size: 0;
+          list-style: none;
+          margin-bottom: 30px;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+
+        .slider-wrapper .image-list::-webkit-scrollbar {
+          display: none;
+        }
+
+        .slider-wrapper .image-list .image-item {
+          width: 360px;
+          height: 500px;
+        }
+
+        .slider-wrapper .image-list .image-item-up {
+            width: 360px;
+            height: 242px;
+        }
+
+        .slider-wrapper .image-list .image-item-down {
+            width: 360px;
+            height: 242px;
+        }
+
+        .container .slider-scrollbar {
+          height: 24px;
+          width: 100%;
+          display: flex;
+          align-items: center;
+        }
+
+        .slider-scrollbar .scrollbar-track {
+          background: #ccc;
+          width: 100%;
+          height: 2px;
+          display: flex;
+          align-items: center;
+          border-radius: 4px;
+          position: relative;
+        }
+
+        .slider-scrollbar:hover .scrollbar-track {
+          height: 4px;
+        }
+
+        .slider-scrollbar .scrollbar-thumb {
+          position: absolute;
+          background: #000;
+          top: 0;
+          bottom: 0;
+          width: 50%;
+          height: 100%;
+          cursor: grab;
+          border-radius: inherit;
+        }
+
+        .slider-scrollbar .scrollbar-thumb:active {
+          cursor: grabbing;
+          height: 8px;
+          top: -2px;
+        }
+
+        .slider-scrollbar .scrollbar-thumb::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: -10px;
+          bottom: -10px;
+        }
+
+        .slider-wrapper-d {
+            position: relative;
+        }
+
+        .slider-wrapper-d .slide-button-d {
+            position: absolute;
+            top: 50%;
+            outline: none;
+            border: none;
+            height: 50px;
+            width: 50px;
+            z-index: 5;
+            color: #fff;
+            display: flex;
+            cursor: pointer;
+            font-size: 2.2rem;
+            background: #000;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+
+        .slider-wrapper-d .slide-button-d:hover {
+            background: #404040;
+        }
+
+        .slider-wrapper-d .slide-button-d#prev-slide-d {
+            left: -25px;
+            display: none;
+        }
+
+        .slider-wrapper-d .slide-button-d#next-slide-d {
+            right: -25px;
+        }
+
+        .slider-wrapper-d .image-list-d {
+            display: grid;
+            grid-template-columns: repeat(@discountedProducts?.Count(), 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .slider-wrapper-d .image-list-d::-webkit-scrollbar {
+            display: none;
+        }
+
+        .image-item-discount {
+            width: 305px;
+            height: 330px;
+            object-fit: cover;
+        }
+
+        .image-item-product {
+            width: 305px;
+            height: 330px;
+        }
+
+        .container .slider-scrollbar-d {
+            height: 24px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-scrollbar-d .scrollbar-track-d {
+            background: #ccc;
+            width: 100%;
+            height: 2px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .slider-scrollbar-d:hover .scrollbar-track-d {
+            height: 4px;
+        }
+
+        .slider-scrollbar-d .scrollbar-thumb-d {
+            position: absolute;
+            background: #000;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            height: 100%;
+            cursor: grab;
+            border-radius: inherit;
+        }
+
+        .slider-scrollbar-d .scrollbar-thumb-d:active {
+            cursor: grabbing;
+            height: 8px;
+            top: -2px;
+        }
+
+        .slider-scrollbar-d .scrollbar-thumb-d::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -10px;
+            bottom: -10px;
+        }
+
+        .hero {
+            width: 100%;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .background-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .wrapper {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          animation: ani 5s infinite ease-in-out;
+        }
+  
+        .allImages {
+          width: 100%;
+          display: flex;
+          transition: all 0.8s ease-in-out;
+        }
+    
+        .imageWrapper {
+            width: 100%;
+            float: left;
+            overflow: hidden;
+        }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<div class="page-holder">
+    <!--  Modal -->
+   
+    <!-- HERO SECTION-->
+    <div class="container">
+        <!-- HEADER SECTION-->
+        <div class="wrapper pt-3">
+            <div class="allImages">
+                @if (discounts.Count() == 0)
+                {
+                    <section class="hero pb-3 bg-cover bg-center d-flex align-items-center" style="background: url(/customer/img/hero-banner-alt.jpg)">
+                        <div class="container py-5">
+                            <div class="row px-4 px-lg-5">
+                                <div class="col-lg-6">
+                                    <p class="text-muted small text-uppercase mb-2">NEW INSPIRATION 2024</p>
+                                    <h1 class="h2 text-uppercase mb-3">20% OFF ON NEW SEASON</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
+                else
+                {
+                    foreach (var discount in discounts)
+                    {
+                        <section class="hero pb-3 bg-cover bg-center d-flex align-items-center">
+                            <img src="~/Files/DiscountImages/@discount.ImagePath" class="background-image" alt="Discount Image">
+                            <div class="container py-5">
+                                <div class="row px-4 px-lg-5">
+                                    <div class="col-lg-6">
+                                        <p class="text-muted small text-uppercase mb-2">@discount.Name</p>
+                                        <h1 class="h2 text-uppercase mb-3">@discount.Description</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    }
+                }
+            </div>
+        </div>
+        <!-- CATEGORIES SECTION-->
+        <section class="pt-5" id="categories">
+            <header class="text-center">
+                <p class="small text-muted small text-uppercase mb-1">Carefully Created Collections</p>
+                <h2 class="h5 text-uppercase mb-4">Browse Our Categories</h2>
+            </header>
+            <div class="container">
+                <div class="slider-wrapper">
+                    <button id="prev-slide" class="slide-button material-symbols-rounded">
+                        chevron_left
+                    </button>
+                    <ul class="image-list">
+                        @{
+                            int count = 1;
+                        }
+                        @for (int i = 0; i < Model.Count(); i++)
+                        {
+                            if (count == 1)
+                            {
+                                <div>
+                                    <a class="category-item" asp-action="Index" asp-controller="FilterProduct" asp-route-id="@Model[i].Id"><div class="image-item"><img src="@Model[i].ImagePath" style="width:100%;height:100%;" alt="" /><strong class="category-item-title">@Model[i].Name</strong></div></a>
+                                </div>
+                            }
+                            else if (count == 2 && (i + 1) < Model.Count())
+                            {
+                                <div>
+                                    <a class="category-item mb-3" asp-action="Index" asp-controller="FilterProduct" asp-route-id="@Model[i].Id"><div class="image-item-up"><img src="@Model[i].ImagePath" style="width:100%;height:100%;" alt="" /><strong class="category-item-title">@Model[i].Name</strong></div></a>
+
+                                    @{
+                                        count++;
+                                    }
+
+                                    <a class="category-item" asp-action="Index" asp-controller="FilterProduct" asp-route-id="@Model[i+1].Id"><div class="image-item-down"><img src="@Model[i + 1].ImagePath" style="width:100%;height:100%;" alt="" /><strong class="category-item-title">@Model[i + 1].Name</strong></div></a>
+                                </div>
+                            }
+
+                            if (count == 3)
+                            {
+                                i++;
+                                count = 0;
+                            }
+
+                            count++;
+                        }
+                    </ul>
+                    <button id="next-slide" class="slide-button material-symbols-rounded">
+                        chevron_right
+                    </button>
+                </div>
+                <div class="slider-scrollbar">
+                    <div class="scrollbar-track">
+                        <div class="scrollbar-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- DISCOUNTS SECTION-->
+        @if (discountedProducts?.Count() >= 4)
+        {
+            <section id="discounts" class="pt-5">
+                <header class="text-center">
+                    <p class="small text-muted small text-uppercase mb-1">Handpicked Discounted Items</p>
+                    <h2 class="h5 text-uppercase mb-4">Explore Our Discounts</h2>
+                </header>
+                <div class="container">
+                    <div class="slider-wrapper-d">
+                        <button id="prev-slide-d" class="slide-button-d material-symbols-rounded">
+                            chevron_left
+                        </button>
+                        <ul class="image-list-d">
+                            @{
+                                int counterDiscount = 1;
+                            }
+                            @foreach (var product in discountedProducts)
+                            {
+                                string imageName = product?.Images?.FirstOrDefault()?.ImagePath;
+                                string source = string.Empty;
+
+                                if (imageName != null)
+                                {
+                                    source = $"/Files/ProductImages/{imageName}";
+                                }
+                                else
+                                {
+                                    source = $"~/files/categoryimages/no_image.jpg";
+                                }
+
+                                <div>
+                                    <div class="product text-center">
+                                        <div class="position-relative mb-3">
+                                            @{
+                                                decimal? priceAfterDiscount = null;
+                                                if (product?.Discount != null && product.Discount.Percentage != null)
+                                                {
+                                                    decimal discountPercentage = (decimal)product.Discount.Percentage;
+                                                    priceAfterDiscount = product.Price - (product.Price * (discountPercentage / 100));
+                                                }
+
+                                                string badgeClass = "badge text-white bg-";
+                                                string badgeText = "";
+                                                if (product.InStock == 0)
+                                                {
+                                                    badgeClass += "danger";
+                                                    badgeText = "SOLD";
+                                                }
+                                                else if (product.Discount != null && product.Discount.IsActive == true)
+                                                {
+                                                    badgeClass += "primary";
+                                                    badgeText = $"{product.Discount.Percentage}% SALE";
+                                                }
+                                            }
+                                            <div class="@badgeClass">@badgeText</div>
+                                            <a class="d-block" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><div class="image-item-product"><img src="@source" style="width:100%;height:100%;" alt="..."></div></a>
+                                            <div class="product-overlay">
+                                                <ul class="list-inline">
+                                                    <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-outline-dark" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><i class="far fa-eye"></i></a></li>
+                                                    <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-dark addToCartBtnProduct" data-item-id="@product.Id">Add to cart</a></li>
+                                                    <li class="list-inline-item">
+                                                        <a class="btn btn-sm btn-outline-dark  js-render-modal" href="javascript:"  data-url="/Product/ProductDetailes/@product.Id">
+                                                            <i class="fas fa-expand"></i>
+                                                            </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <h6> <a class="reset-anchor" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id">@product.Name</a></h6>
+                                        <p class="small text-muted">
+                                            @if (priceAfterDiscount != null)
+                                            {
+                                                <span style="text-decoration: line-through;">@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                                <span style="font-weight:700;">&nbsp; &nbsp; @string.Format("{0} EGP", priceAfterDiscount?.ToString("#,##0.00"))</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                if (counterDiscount == 12)
+                                {
+                                    counterDiscount = 0;
+                                }
+
+                                counterDiscount++;
+                            }
+                        </ul>
+                        <button id="next-slide-d" class="slide-button-d material-symbols-rounded">
+                            chevron_right
+                        </button>
+                    </div>
+                    <div class="slider-scrollbar-d">
+                        <div class="scrollbar-track-d">
+                            <div class="scrollbar-thumb-d"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- BESTSELLERS PRODUCTS-->
+        @if (productsByUnitsSold?.Count() > 0)
+        {
+            <section class="py-5">
+                <header id="bestsellers">
+                    <p class="small text-muted small text-uppercase mb-1">Discover timeless favorites crafted with care</p>
+                    <h2 class="h5 text-uppercase mb-4">Bestsellers of All Time</h2>
+                </header>
+                <div class="row">
+                    @{
+                        int maxNumberOfProductsByUnitsSold = 0;
+
+                        if (productsByUnitsSold?.Count() >= 8)
+                        {
+                            maxNumberOfProductsByUnitsSold = 8;
+                        }
+                        else if (productsByUnitsSold?.Count() >= 4)
+                        {
+                            maxNumberOfProductsByUnitsSold = 4;
+                        }
+
+                        int productsByUnitsSoldCounter = 0;
+                    }
+                    @foreach (var product in productsByUnitsSold)
+                    {
+                        if (maxNumberOfProductsByUnitsSold == 0)
+                        {
+                            break;
+                        }
+
+                        string imageName = product?.Images?.FirstOrDefault()?.ImagePath;
+                        string source = string.Empty;
+
+                        if (imageName != null)
+                        {
+                            source = $"/Files/ProductImages/{imageName}";
+                        }
+                        else
+                        {
+                            source = $"~/files/categoryimages/no_image.jpg";
+                        }
+
+						<div class="col-xl-3 col-lg-4 col-sm-6">
+                            <div class="product text-center">
+                                <div class="position-relative mb-3">
+                                    @{
+                                        decimal? priceAfterDiscount = null;
+                                        if (product.Discount != null && product.Discount.Percentage != null)
+                                        {
+                                            decimal discountPercentage = (decimal)product.Discount.Percentage;
+                                            priceAfterDiscount = product.Price - (product.Price * (discountPercentage / 100));
+                                        }
+
+                                        string badgeClass = "badge text-white bg-";
+                                        string badgeText = "";
+                                        if (product.InStock == 0)
+                                        {
+                                            badgeClass += "danger";
+                                            badgeText = "SOLD";
+                                        }
+                                        else if (product.Discount != null && product.Discount.IsActive == true)
+                                        {
+                                            badgeClass += "primary";
+                                            badgeText = $"{product.Discount.Percentage}% SALE";
+                                        }
+                                        else if ((DateTime.Now - product.CreatedAt).TotalDays <= 14)
+                                        {
+                                            badgeClass += "info";
+                                            badgeText = "NEW";
+                                        }
+                                    }
+                                    <div class="@badgeClass">@badgeText</div>
+                                    <a class="d-block" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><div class="image-item-product"><img src="@source" style="width:100%;height:100%;" alt="..."></div></a>
+                                    <div class="product-overlay">
+                                        <ul class="mb-0 list-inline">
+                                            <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-outline-dark" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><i class="far fa-eye"></i></a></li>
+                                            <li class="list-inline-item m-0 p-0"><a class="btn btn-sm btn-dark addToCartBtnProduct" data-item-id="@product.Id">Add to cart</a></li>
+                                            <li class="list-inline-item">
+                                                <a class="btn btn-sm btn-outline-dark  js-render-modal" href="javascript:" data-url="/Product/ProductDetailes/@product.Id">
+                                                    <i class="fas fa-expand"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <h6> <a class="reset-anchor" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id">@product.Name</a></h6>
+                                <p class="small text-muted">
+                                    @if (priceAfterDiscount != null && product.InStock != 0 && product.Discount != null && product.Discount.IsActive == true && product.Discount.Percentage != null)
+                                    {
+                                        <span style="text-decoration: line-through;">@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                        <span style="font-weight:700;">&nbsp; &nbsp; @string.Format("{0} EGP", priceAfterDiscount?.ToString("#,##0.00"))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        productsByUnitsSoldCounter++;
+
+                        if (productsByUnitsSoldCounter == maxNumberOfProductsByUnitsSold)
+                        {
+                            break;
+                        }
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- PRODUCTS -->
+        @foreach (var category in Model)
+        {
+            int max = 0;
+
+            if(category.Products?.Count() >= 8)
+            {
+                max = 8;
+            }
+            else if (category.Products?.Count() >= 4)
+            {
+                max = 4;
+            }
+            else
+            {
+                continue;
+            }
+
+            int counter = 0;
+
+            <section class="py-5">
+                <header>
+                    <p class="small text-muted small text-uppercase mb-1">Made the hard way</p>
+                    <h2 class="h5 text-uppercase mb-4">@category.Name</h2>
+                </header>
+                <div class="row">
+                    @foreach (var product in category.Products)
+                    {
+                        if (max == 0)
+                        {
+                            break;
+                        }
+
+                        string imageName = product?.Images?.FirstOrDefault()?.ImagePath;
+                        string source = string.Empty;
+
+                        if (imageName != null)
+                        {
+                            source = $"/Files/ProductImages/{imageName}";
+                        }
+                        else
+                        {
+                            source = $"~/files/categoryimages/no_image.jpg";
+                        }
+
+                        <div class="col-xl-3 col-lg-4 col-sm-6">
+                            <div class="product text-center">
+                                <div class="position-relative mb-3">
+                                    @{
+                                        decimal? priceAfterDiscount = null;
+                                        if (product.Discount != null && product.Discount.Percentage != null)
+                                        {
+                                            decimal discountPercentage = (decimal)product.Discount.Percentage;
+                                            priceAfterDiscount = product.Price - (product.Price * (discountPercentage / 100));
+                                        }
+
+                                        string badgeClass = "badge text-white bg-";
+                                        string badgeText = "";
+                                        if (product.InStock == 0)
+                                        {
+                                            badgeClass += "danger";
+                                            badgeText = "SOLD";
+                                        }
+                                        else if (product.Discount != null && product.Discount.IsActive == true)
+                                        {
+                                            badgeClass += "primary";
+                                            badgeText = $"{product.Discount.Percentage}% SALE";
+                                        }
+                                        else if ((DateTime.Now - product.CreatedAt).TotalDays <= 14)
+                                        {
+                                            badgeClass += "info";
+                                            badgeText = "NEW";
+                                        }
+                                    } 
+                                    <div class="@badgeClass">@badgeText</div>
+                                    <a class="d-block" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id"><div class="image-item-product"><img src="@source" style="width:100%;height:100%;" alt="..."></div></a>
+                                    <div class="product-overlay">
+                                        <ul class="mb-0 list-inline">
+                                            <li class="list-inline-item m-0 p-0">
+                                                <a class="btn btn-sm btn-outline-dark" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id">
+                                                    <i class="far fa-eye"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item m-0 p-0">
+                                                <a class="btn btn-sm btn-dark addToCartBtnProduct" data-item-id="@product.Id">Add to cart</a>
+                                            </li>
+                                            <li class="list-inline-item">
+                                                <a class="btn btn-sm btn-outline-dark  js-render-modal" href="javascript:" data-url="/Product/ProductDetailes/@product.Id">
+                                                    <i class="fas fa-expand"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <h6> <a class="reset-anchor" asp-controller="Product" asp-action="CustomerSideDetails" asp-route-id="@product.Id">@product.Name</a></h6>
+                                <p class="small text-muted">
+                                    @if (priceAfterDiscount != null && product.InStock != 0 && product.Discount != null && product.Discount.IsActive == true && product.Discount.Percentage != null)
+                                    {
+                                        <span style="text-decoration: line-through;">@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                        <span style="font-weight:700;">&nbsp; &nbsp; @string.Format("{0} EGP", priceAfterDiscount?.ToString("#,##0.00"))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@string.Format("{0} EGP", product.Price.ToString("#,##0.00"))</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        counter++;
+
+                        if (counter == max)
+                        {
+                            break;
+                        }
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- SERVICES-->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <div class="row text-center gy-3">
+                    <div class="col-lg-4">
+                        <div class="d-inline-block">
+                            <div class="d-flex align-items-end">
+                                <svg class="svg-icon svg-icon-big svg-icon-light">
+                                    <use xlink:href="#delivery-time-1"> </use>
+                                </svg>
+                                <div class="text-start ms-3">
+                                    <h6 class="text-uppercase mb-1">Free shipping</h6>
+                                    <p class="text-sm mb-0 text-muted">Free shipping worldwide</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-inline-block">
+                            <div class="d-flex align-items-end">
+                                <svg class="svg-icon svg-icon-big svg-icon-light">
+                                    <use xlink:href="#helpline-24h-1"> </use>
+                                </svg>
+                                <div class="text-start ms-3">
+                                    <h6 class="text-uppercase mb-1">24 x 7 service</h6>
+                                    <p class="text-sm mb-0 text-muted">Free shipping worldwide</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-inline-block">
+                            <div class="d-flex align-items-end">
+                                <svg class="svg-icon svg-icon-big svg-icon-light">
+                                    <use xlink:href="#label-tag-1"> </use>
+                                </svg>
+                                <div class="text-start ms-3">
+                                    <h6 class="text-uppercase mb-1">Festivaloffers</h6>
+                                    <p class="text-sm mb-0 text-muted">Free shipping worldwide</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- NEWSLETTER-->
+        <section class="py-5">
+            <div class="container p-0">
+                <div class="row gy-3">
+                    <div class="col-lg-6">
+                        <h5 class="text-uppercase">Let's be friends!</h5>
+                        <p class="text-sm text-muted mb-0">Nisi nisi tempor consequat laboris nisi.</p>
+                    </div>
+                    <div class="col-lg-6">
+                        <form action="#">
+                            <div class="input-group">
+                                <input class="form-control form-control-lg" type="email" placeholder="Enter your email address" aria-describedby="button-addon2">
+                                <button class="btn btn-dark" id="button-addon2" type="submit">Subscribe</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<partial name="~/views/Product/_Model.cshtml" />
+<script>
+    const initSlider = () => {
+        const imageList = document.querySelector(".slider-wrapper .image-list");
+        const slideButtons = document.querySelectorAll(".slider-wrapper .slide-button");
+        const sliderScrollbar = document.querySelector(".container .slider-scrollbar");
+        const scrollbarThumb = sliderScrollbar.querySelector(".scrollbar-thumb");
+        const maxScrollLeft = imageList.scrollWidth - imageList.clientWidth;
+
+        // Handle scrollbar thumb drag
+        scrollbarThumb.addEventListener("mousedown", (e) => {
+            const startX = e.clientX;
+            const thumbPosition = scrollbarThumb.offsetLeft;
+            const maxThumbPosition = sliderScrollbar.getBoundingClientRect().width - scrollbarThumb.offsetWidth;
+
+            // Update thumb position on mouse move
+            const handleMouseMove = (e) => {
+                const deltaX = e.clientX - startX;
+                const newThumbPosition = thumbPosition + deltaX;
+
+                // Ensure the scrollbar thumb stays within bounds
+                const boundedPosition = Math.max(0, Math.min(maxThumbPosition, newThumbPosition));
+                const scrollPosition = (boundedPosition / maxThumbPosition) * maxScrollLeft;
+
+                scrollbarThumb.style.left = `${boundedPosition}px`;
+                imageList.scrollLeft = scrollPosition;
+            }
+
+            // Remove event listeners on mouse up
+            const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+            }
+
+            // Add event listeners for drag interaction
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        });
+
+        // Slide images according to the slide button clicks
+        slideButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const direction = button.id === "prev-slide" ? -1 : 1;
+                const scrollAmount = imageList.clientWidth * direction;
+                imageList.scrollBy({ left: scrollAmount, behavior: "smooth" });
+            });
+        });
+
+        // Show or hide slide buttons based on scroll position
+        const handleSlideButtons = () => {
+            slideButtons[0].style.display = imageList.scrollLeft <= 0 ? "none" : "flex";
+            slideButtons[1].style.display = imageList.scrollLeft >= maxScrollLeft ? "none" : "flex";
+        }
+
+        // Update scrollbar thumb position based on image scroll
+        const updateScrollThumbPosition = () => {
+            const scrollPosition = imageList.scrollLeft;
+            const thumbPosition = (scrollPosition / maxScrollLeft) * (sliderScrollbar.clientWidth - scrollbarThumb.offsetWidth);
+            scrollbarThumb.style.left = `${thumbPosition}px`;
+        }
+
+        // Call these two functions when image list scrolls
+        imageList.addEventListener("scroll", () => {
+            updateScrollThumbPosition();
+            handleSlideButtons();
+        });
+    }
+
+    window.addEventListener("resize", initSlider);
+    window.addEventListener("load", initSlider);
+</script>
+
+<script>
+    const initSliderD = () => {
+        const imageList = document.querySelector(".slider-wrapper-d .image-list-d");
+        const slideButtons = document.querySelectorAll(".slider-wrapper-d .slide-button-d");
+        const sliderScrollbar = document.querySelector(".container .slider-scrollbar-d");
+        const scrollbarThumb = sliderScrollbar.querySelector(".scrollbar-thumb-d");
+        const maxScrollLeft = imageList.scrollWidth - imageList.clientWidth;
+
+        // Handle scrollbar thumb drag
+        scrollbarThumb.addEventListener("mousedown", (e) => {
+            const startX = e.clientX;
+            const thumbPosition = scrollbarThumb.offsetLeft;
+            const maxThumbPosition = sliderScrollbar.getBoundingClientRect().width - scrollbarThumb.offsetWidth;
+
+            // Update thumb position on mouse move
+            const handleMouseMove = (e) => {
+                const deltaX = e.clientX - startX;
+                const newThumbPosition = thumbPosition + deltaX;
+
+                // Ensure the scrollbar thumb stays within bounds
+                const boundedPosition = Math.max(0, Math.min(maxThumbPosition, newThumbPosition));
+                const scrollPosition = (boundedPosition / maxThumbPosition) * maxScrollLeft;
+
+                scrollbarThumb.style.left = `${boundedPosition}px`;
+                imageList.scrollLeft = scrollPosition;
+            }
+
+            // Remove event listeners on mouse up
+            const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+            }
+
+            // Add event listeners for drag interaction
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        });
+
+        // Slide images according to the slide button clicks
+        slideButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const direction = button.id === "prev-slide-d" ? -1 : 1;
+                const scrollAmount = imageList.clientWidth * direction;
+                imageList.scrollBy({ left: scrollAmount, behavior: "smooth" });
+            });
+        });
+
+        // Show or hide slide buttons based on scroll position
+        const handleSlideButtons = () => {
+            slideButtons[0].style.display = imageList.scrollLeft <= 0 ? "none" : "flex";
+            slideButtons[1].style.display = imageList.scrollLeft >= maxScrollLeft ? "none" : "flex";
+        }
+
+        // Update scrollbar thumb position based on image scroll
+        const updateScrollThumbPosition = () => {
+            const scrollPosition = imageList.scrollLeft;
+            const thumbPosition = (scrollPosition / maxScrollLeft) * (sliderScrollbar.clientWidth - scrollbarThumb.offsetWidth);
+            scrollbarThumb.style.left = `${thumbPosition}px`;
+        }
+
+        // Call these two functions when image list scrolls
+        imageList.addEventListener("scroll", () => {
+            updateScrollThumbPosition();
+            handleSlideButtons();
+        });
+    }
+
+    window.addEventListener("resize", initSliderD);
+    window.addEventListener("load", initSliderD);
+</script>
+
+<script>
+    var AllImages = document.querySelector(".allImages");
+    var imageWidth = document.querySelector(".wrapper").clientWidth;
+    // the index value of current page
+    var i = 0;
+
+    //placeholder for our setInterval function
+    var timer = 0;
+
+    // start timer function
+    function Start() {
+
+        timer = setInterval(function () {
+            if (i < @discounts.Count() /* AllImages.children.length */) {
+                i++;
+                AllImages.style.transform = "translateX(" + (-imageWidth * i) + "px)";
+                if (i >= @discounts.Count() /* AllImages.children.length */) {
+                    AllImages.style.transform = "translateX(0px)";
+                    i = 0;
+                }
+            }
+        }, 5000);
+    }
+
+    // starting the timer
+    Start();
+
+    //stop the timer
+    function Stop() {
+        clearInterval(timer);
+    }
+</script>
+
+
+@section JS{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.addToCartBtnProduct').click(function (e) {
+                e.preventDefault();
+                var quantity = 1;
+                var productId = $(this).data('item-id');
+                console.log(productId);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Cart/AddToCart/',
+                    cache: false,
+
+                    cache: false,
+
+                    data: { productId: productId, quantity: quantity },
+                    success: function (response) {
+                        if (response.success) {
+
+                            Toastify({
+                                text: "item is Added",
+                                className: "info",
+                                style: {
+                                    background: "linear-gradient(to right, #dcb14a, #dcb14a)",
+                                },
+
+                                preventDuplicates: false
+                            }).showToast();
+                                updateCartCount(response.cartCount);
+                            
+                        } else {
+                            Toastify({
+                                text: "Quantity cannot exceed available stock",
+                                className: "toastify-danger",
+                                style: {
+                                    background: "linear-gradient(to right,#f53b5a, #eb1919)",
+                                },
+                                position: "center",
+                                preventDuplicates: false,
+                                duration: 3000
+                            }).showToast();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error adding item to cart:', error);
+                    }
+                });
+            });
+
+            function updateCartCount(count) {
+                $('#cartCount').text('(' + count + ')');
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('body').on('click', '.js-render-modal', function () {
+                var btn = $(this); 
+               
+
+                $.ajax({
+                    url: btn.data('url'),
+                    cache: false,
+                    success: function (form) {
+                        var Modal2 = $('#Modal');
+                        Modal2.find('.modal-dialog').html(form);
+                        Modal2.modal('show');
+                    },
+                    error: function () {
+                        showErrorMessage();
+                    }
+                });
+            });
+
+            $('#Modal').on('hidden.bs.modal', function () {
+                $(this).find('.modal-dialog').html('');
+            });
+        });
+    </script>
+}

@@ -1,0 +1,59 @@
+﻿@model CreateUserVM
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/Admin/_AdminLayout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <div class="header-title">
+            <h4 class="card-title">Add User</h4>
+        </div>
+    </div>
+    <div class="card-body">
+        <form class="needs-validation" enctype="multipart/form-data" asp-action="Create" asp-controller="User" novalidate>
+            <partial name="~/Views/Partials/User/_CreateForm.cshtml" />
+            <partial name="~/Views/Partials/User/Address/_Address.cshtml"  />
+
+
+            <div class="row">
+                <div class="col-7">
+                    <div class="input-group mb-4">
+                       
+                    </div>
+
+                </div>
+
+                <div class="col-5">
+                    <div class="input-group mb-4">
+                        <div id="customerButtonPlaceholder" style="display:none;">
+                          
+                            <div onclick="addInput()" class="m-2 btn btn-success">
+                                add card
+                            </div>
+                        </div>
+                        
+                        <div style="display:none;" id="delete-form" onclick="deleteLastInput()" class="m-2 btn btn-danger">
+                           Delete Card
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+            <div id="Payment">
+            </div>
+
+            <button class="btn btn-primary" type="submit">Submit form</button>
+            <button type="reset" class="btn btn-danger">Reset</button>
+        </form>
+    </div>
+</div>
+
+@section JS {
+    <partial name="~/Views/Partials/User/_UserCreateJS.cshtml"  />
+
+    <partial name="~/Views/Partials/User/_PaymentFormJs.cshtml" />
+
+
+}

@@ -1,0 +1,56 @@
+﻿@model IEnumerable<GetAllUserVM>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/Admin/_AdminLayout.cshtml";
+}
+<div class="row">
+    <div class="col-lg-12">
+        
+
+        <div class="col-lg-12">
+            <div class="d-flex flex-wrap flex-wrap align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="mb-3">User List</h4>
+                    <p class="mb-0">Here are all the users in the system</p>
+                </div>
+                <a asp-action="Create" asp-controller="User" class="btn btn-primary  add-list"><i class="las la-plus mr-3"></i>Add User</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="table-responsive rounded mb-3">
+            <table class="data-tables table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+
+                        <th>Name</th>
+                        <th>Profile</th>
+                        <th>Gender</th>
+                        <th>Type</th>
+                        <th>CityName</th>
+                        <th>StateName</th>
+                        <th>CreatedAt</th>
+
+                        <th>IsDeleted</th>
+                        <th>ModifiedAt</th>
+
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="ligth-body">
+                    @foreach (var item in Model)
+                    {
+                        <partial name="~/Views/Partials/User/_RowUser.cshtml" model="@item" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@section JS {
+    <partial name="~/Views/Partials/User/_UserScript.cshtml" />
+
+}
