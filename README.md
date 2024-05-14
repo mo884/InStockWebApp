@@ -32,10 +32,12 @@ Technical Aspects: Handle technical operations including authentication, authori
 Integration: Utilize various APIs and services for external login, SMS, email, and maps.
 👥 Project Team:
 
-Eslam Gamal
-Omar Awad Eldosoky
-Hala Tag
+Eslam Gamal -
+Omar Awad Eldosoky-
+Hala Tag-
 Samaa Khalifa
+
+
 🛠 Technologies Used:
 
 C# 12
